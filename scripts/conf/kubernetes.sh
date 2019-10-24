@@ -25,8 +25,8 @@ get_kube_certs() {
   local join_command=${1}
   token_cert_hash=$(echo "${join_command}" | cut -d ' ' -f3-)
 
-  # keep looping until our certificate directory has been created by kubeadm
-  until test -d /etc/kubernetes/pki/; do
+  # keep looping until our certificates have been downloaded
+  until test -d /etc/kubernetes/pki/etcd/; do
     # upload certs again with new certificate key
     certificate_key=$(${ssh_control_plane} kubeadm alpha certs certificate-key)
     ${ssh_control_plane} sudo kubeadm init phase upload-certs \
