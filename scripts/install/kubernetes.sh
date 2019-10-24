@@ -36,3 +36,9 @@ update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 echo "net.bridge.bridge-nf-call-iptables=1" >> /etc/sysctl.conf
 modprobe br_netfilter
 sysctl -p
+
+# pull down master images for faster build time in background
+if [ "${KUBE_NODE_TYPE}" == "master" ]; then
+  echo "Pulling down all kubeadm images..."
+  kubeadm config images pull &
+fi
