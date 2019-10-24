@@ -49,7 +49,7 @@ get_kube_config() {
   cp -i /etc/kubernetes/admin.conf "/home/pi/.kube/config"
   chown -R "$(id -u):$(id -g)" "/root/.kube"
   chown -R "$(id -u pi):$(id -g pi)" "/home/pi/"
-  kubectl completion bash > /etc/bash_completion.d/kubectl
+  echo 'source <(kubectl completion bash)' >> /home/pi/.bashrc
 }
 
 check_kube_master() {
