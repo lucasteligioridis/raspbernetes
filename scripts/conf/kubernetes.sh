@@ -54,54 +54,62 @@ cluster_up() {
   echo "Attempting to join cluster!"
 }
 
-get_kube_certs() {
+reset_master() {
+  echo "Removing master ${HOSTNAME} from existing etcd cluster"
+  etcdctl_member=$(etcdctl_cmd member list | grep "${HOSTNAME}" | cut -d ':' -f1)
+  etcdctl_cmd member remove "${etcdctl_member}"
+
+  echo "Updating the existing kubeadm config to clear out stale host"
+  remote_control_plane "kubectl get configmaps kubeadm-config -n kube-system -o yaml > /tmp/kubeadm-${HOSTNAME}.yaml"
+  remote_control_plane "sed -i '/      ${HOSTNAME}/,+2 d' /tmp/kubeadm-${HOSTNAME}.yaml"
+  remote_control_plane "kubectl apply -f /tmp/kubeadm-${HOSTNAME}.yaml -n kube-system"
+}
+
+get_certs() {
   local join_command=${1}
-  token_cert_hash=$(echo "${join_command}" | cut -d ' ' -f3-)
+  read -ra token_cert_hash <<< "$(echo "${join_command}" | cut -d ' ' -f3-)"
 
   # keep looping until our certificates have been downloaded
   until test -d /etc/kubernetes/pki/etcd/; do
     # upload certs again with new certificate key
-    certificate_key=$(${ssh_control_plane} kubeadm alpha certs certificate-key)
-    ${ssh_control_plane} sudo kubeadm init phase upload-certs \
+    certificate_key=$(remote_control_plane kubeadm alpha certs certificate-key)
+    remote_control_plane sudo kubeadm init phase upload-certs \
       --upload-certs \
       --certificate-key "${certificate_key}"
 
     # attempt to download certs, need to retry incase of race condition
     # with other masters clobbering the certificate_key secret
-    # shellcheck disable=SC2086
-    kubeadm join phase control-plane-prepare download-certs ${token_cert_hash} \
+    kubeadm join phase control-plane-prepare download-certs "${token_cert_hash[@]}" \
       --certificate-key "${certificate_key}" \
       --control-plane || continue
   done
 }
 
-get_kube_config() {
+get_config() {
   mkdir -p "/root/.kube"
-  mkdir -p "/home/pi/.kube"
-  cp -i /etc/kubernetes/admin.conf "/root/.kube/config"
-  cp -i /etc/kubernetes/admin.conf "/home/pi/.kube/config"
+  mkdir -p "${pi_home}/.kube"
+  cp -f /etc/kubernetes/admin.conf "/root/.kube/config"
+  cp -f /etc/kubernetes/admin.conf "${pi_home}/.kube/config"
   chown -R "$(id -u):$(id -g)" "/root/.kube"
-  chown -R "$(id -u pi):$(id -g pi)" "/home/pi/"
-  echo 'source <(kubectl completion bash)' >> /home/pi/.bashrc
+  chown -R "$(id -u pi):$(id -g pi)" "${pi_home}/"
+  echo "source <(kubectl completion bash)" >> "${pi_home}/.bashrc"
 }
 
-check_kube_master() {
+join_master() {
   if curl -sSLk "https://${KUBE_MASTER_VIP}:6443" -o /dev/null; then
     echo "Control-plane has been found! Joining existing cluster as master."
-    join_kube_master
+    existing_master
+  elif hostname -I | grep "${KUBE_MASTER_VIP}"; then
+    echo "VIP currently resides on local host and no cluster exists."
+    echo "Initialising as new Kubernetes cluster"
+    init_master
   else
-    if hostname -I | grep "${KUBE_MASTER_VIP}"; then
-      echo "VIP currently resides on local host and no cluster exists."
-      echo "Initialising as new Kubernetes cluster"
-      init_kube_master
-    else
-      echo "Did not win VIP election, joining existing cluster."
-      join_kube_master
-    fi
+    echo "Did not win VIP election, joining existing cluster."
+    existing_master
   fi
 }
 
-init_kube_master() {
+init_master() {
   # initialise kubernetes cluster
   kubeadm init \
     --apiserver-cert-extra-sans "${KUBE_MASTER_VIP}" \
@@ -112,45 +120,38 @@ init_kube_master() {
 
   # setup flannel
   kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f "${flannel_url}"
-  get_kube_config
-
-  # let other nodes know that the cluster has successfully booted
-  touch "${kube_finished}"
 }
 
-join_kube_master() {
+existing_master() {
   # ensure the cluster is given enough time to initialise
   cluster_up
 
   # get kubeadm join command and download certs from master
-  join_command=$(${ssh_control_plane} kubeadm token create --print-join-command)
-  get_kube_certs "${join_command}"
+  join_command=$(remote_control_plane kubeadm token create --print-join-command)
+  get_certs "${join_command}"
 
-  # join cluster and make master
+  # join cluster as master
   ${join_command} --control-plane
-  get_kube_config
-
-  # let other nodes know that the cluster has successfully booted
-  touch "${kube_finished}"
 }
 
-join_kube_worker() {
+join_worker() {
   # ensure the cluster is given enough time to initialise
   cluster_up
 
   # get kubeadm join command from master
-  join_command=$(${ssh_control_plane} kubeadm token create --print-join-command)
+  join_command=$(remote_control_plane kubeadm token create --print-join-command)
   ${join_command}
-
-  # let other nodes know that the cluster has successfully booted
-  touch "${kube_finished}"
 }
 
 # determine the node type and run specific function
 if [ "${KUBE_NODE_TYPE}" == "master" ]; then
   echo "Detected as master node type, need to either join existing cluster or initialise new one"
-  check_kube_master
+  join_master
 elif [ "${KUBE_NODE_TYPE}" == "worker" ]; then
   echo "Detected as worker node type, need to join existing cluster!"
-  join_kube_worker
+  join_worker
 fi
+
+# get kubernetes configuration and indicate finished booting
+get_config
+touch "${kube_finished}"
