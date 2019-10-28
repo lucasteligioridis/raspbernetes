@@ -62,14 +62,11 @@ install-conf: conf/ssh/id_ed25519 mount ## Copy all configurations and scripts t
 
 .PHONY: create-conf
 create-conf: $(RPI_NETWORK_TYPE) bootstrap-conf dhcp-conf ## Create custom configuration for specific node and IP
-	echo "Ensuring bootstrap.sh script starts on first boot"
 	sudo sed -i "/^exit 0$$/i /home/pi/bootstrap/bootstrap.sh 2>&1 | logger -t kubernetes-bootstrap &" $(MNT_ROOT)/etc/rc.local
-	echo "Disable SSH password for login, use SSH key generated in ./conf/ssh/ directory"
 	sudo sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication no/g" $(MNT_ROOT)/etc/ssh/sshd_config
 
 .PHONY: bootstrap-conf
 bootstrap-conf: ## Add node custom configuration file to be sourced on boot
-	echo "Adding default configuration to /home/pi/rpi-env"
 	echo "export RPI_HOSTNAME=$(RPI_HOSTNAME)" >> $(RPI_HOME)/bootstrap/rpi-env
 	echo "export RPI_IP=$(RPI_IP)" >> $(RPI_HOME)/bootstrap/rpi-env
 	echo "export RPI_DNS=$(RPI_DNS)" >> $(RPI_HOME)/bootstrap/rpi-env
@@ -83,14 +80,12 @@ bootstrap-conf: ## Add node custom configuration file to be sourced on boot
 
 .PHONY: dhcp-conf
 dhcp-conf: ## Add dhcp configuration to set a static IP and gateway
-	echo "Setting static IP to $(RPI_IP) for $(RPI_NETWORK_TYPE) in /etc/dhcpcd.conf"
 	echo "interface $(RPI_NETWORK_TYPE)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static ip_address=$(RPI_IP)/24" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static routers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static domain_name_servers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 
 conf/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
-	echo "Generating ed25519 keypair to add to cluster"
 	ssh-keygen -t ed25519 -b 4096 -C "pi@raspberry" -f ./conf/ssh/id_ed25519 -q -N ""
 
 ##@ Download and SD Card management
@@ -101,7 +96,6 @@ format: $(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card for Linux ma
 
 .PHONY: mount
 mount: ## Mount the current SD slot drives
-	echo "Mounting SD cards for /boot and /root"
 	sudo mkdir -p $(MNT_BOOT)
 	sudo mkdir -p $(MNT_ROOT)
 	sudo mount /dev/mmcblk0p1 $(MNT_BOOT)
@@ -109,13 +103,11 @@ mount: ## Mount the current SD slot drives
 
 .PHONY: unmount
 unmount: ## Unmount current SD slot drives
-	echo "Unmounting SD card for /boot and /root partitions"
 	sudo umount /dev/mmcblk0p1 || true
 	sudo umount /dev/mmcblk0p2 || true
 
 .PHONY: wlan0
 wlan0: ## Install wpa_supplicant for auto network join
-	echo "wlan0 selected as primary network interface. Installing wpa_supplicant.conf to auto join WiFi on boot"
 	test -n "$(WIFI_SSID)"
 	test -n "$(WIFI_PASSWORD)"
 	sudo cp conf/wpa_supplicant.conf $(MNT_BOOT)/wpa_supplicant.conf
@@ -124,7 +116,6 @@ wlan0: ## Install wpa_supplicant for auto network join
 
 .PHONY: eth0
 eth0: ## Nothing to do for eth0
-	echo "eth0 selected as primary network interface. Nothing to do."
 
 $(RASPBIAN_IMAGE_VERSION).img: ## Download Raspberry Pi image and extract to current directory
 	echo "Downloading $(RASPBIAN_IMAGE_VERSION).img..."
