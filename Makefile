@@ -33,7 +33,7 @@ RASPBIAN_URL           = https://downloads.raspberrypi.org/raspbian_lite/images/
 
 ##@ Build
 .PHONY: build
-build: format install-conf create-conf _clean ## Build SD card with Kubernetes and automated cluster creation
+build: format install-conf create-conf clean ## Build SD card with Kubernetes and automated cluster creation
 	echo "Created an immutable Kubernetes SD card with the following properties:"
 	echo "Network:"
 	echo "- Hostname: $(RPI_HOSTNAME)"
@@ -136,8 +136,8 @@ help: ## Display this help
 	  }' $(MAKEFILE_LIST)
 
 ##@ Helpers
-.PHONY: _clean
-_clean: ## Unmount and delete all temporary mount directories
+.PHONY: clean
+clean: ## Unmount and delete all temporary mount directories
 	sudo umount /dev/mmcblk0p1 || true
 	sudo umount /dev/mmcblk0p2 || true
 	sudo rm -rf $(MNT_BOOT)
