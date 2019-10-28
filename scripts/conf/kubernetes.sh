@@ -3,15 +3,48 @@ set -euo pipefail
 
 flannel_version="2140ac876ef134e0ed5af15c65e414cf26827915"
 flannel_url="https://raw.githubusercontent.com/coreos/flannel/${flannel_version}/Documentation/kube-flannel.yml"
-ssh_control_plane="ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/pi/.ssh/id_ed25519 pi@${KUBE_MASTER_VIP}"
-kube_finished="/home/pi/kube-finished-booting"
+pi_home="/home/pi"
+kube_finished="${pi_home}/kube-finished-booting"
+
+etcdctl_cmd() {
+  remote_control_plane \
+    kubectl exec "etcd-\${HOSTNAME}" -n kube-system -- \
+      etcdctl \
+        --endpoints https://localhost:2379 \
+        --ca-file /etc/kubernetes/pki/etcd/ca.crt \
+        --cert-file /etc/kubernetes/pki/etcd/server.crt \
+        --key-file /etc/kubernetes/pki/etcd/server.key \
+        "${@}"
+}
+
+remote_control_plane() {
+  ssh \
+    -q \
+    -o UserKnownHostsFile=/dev/null \
+    -o StrictHostKeyChecking=no \
+    -i "${pi_home}/.ssh/id_ed25519" \
+    "pi@${KUBE_MASTER_VIP}" "${@}"
+}
+
+clean_node() {
+  if remote_control_plane kubectl get nodes | grep "${HOSTNAME}" | grep "NotReady"; then
+    echo "Deleting ${HOSTNAME} node from kubernetes cluster"
+    remote_control_plane kubectl delete node "${HOSTNAME}"
+
+    if [ "${KUBE_NODE_TYPE}" == "master" ]; then
+      reset_master
+    fi
+  fi
+}
 
 cluster_up() {
+  clean_node
+
   echo "Checking to see if control-plane has been fully initialised..."
   echo "This could take up to 10 minutes..."
 
   count=0
-  while ! ${ssh_control_plane} test -f "${kube_finished}"; do
+  until remote_control_plane test -f "${kube_finished}"; do
     echo "[${count}] Cluster still not up, sleeping for 10 seconds"
     sleep 10
     count=$((count+1))
