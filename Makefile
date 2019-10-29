@@ -111,8 +111,8 @@ wlan0: ## Install wpa_supplicant for auto network join
 	test -n "$(WIFI_SSID)"
 	test -n "$(WIFI_PASSWORD)"
 	sudo cp conf/wpa_supplicant.conf $(MNT_BOOT)/wpa_supplicant.conf
-	sudo sed -i 's/<WIFI_SSID>/$(WIFI_SSID)/' $(MNT_BOOT)/wpa_supplicant.conf
-	sudo sed -i 's/<WIFI_PASSWORD>/$(WIFI_PASSWORD)/' $(MNT_BOOT)/wpa_supplicant.conf
+	sudo sed -i "s/<WIFI_SSID>/$(WIFI_SSID)/" $(MNT_BOOT)/wpa_supplicant.conf
+	sudo sed -i "s/<WIFI_PASSWORD>/$(WIFI_PASSWORD)/" $(MNT_BOOT)/wpa_supplicant.conf
 
 .PHONY: eth0
 eth0: ## Nothing to do for eth0
