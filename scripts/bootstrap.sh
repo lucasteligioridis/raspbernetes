@@ -8,13 +8,6 @@ cd "${0%/*}"
 # shellcheck disable=SC1091
 source ./rpi-env
 
-# set timezone
-timedatectl set-timezone "${RPI_TIMEZONE}"
-
-# cron and rsyslog require a restart for timezone settings to take affect
-systemctl restart cron
-systemctl restart rsyslog
-
 # set default hostname
 ./conf/hostname.sh
 
