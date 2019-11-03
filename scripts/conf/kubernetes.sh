@@ -107,6 +107,7 @@ join_master() {
     echo "Did not win VIP election, joining existing cluster."
     existing_master
   fi
+  get_config
 }
 
 init_master() {
@@ -152,6 +153,5 @@ elif [ "${KUBE_NODE_TYPE}" == "worker" ]; then
   join_worker
 fi
 
-# get kubernetes configuration and indicate finished booting
-get_config
+# indicate finished booting
 touch "${kube_finished}"
