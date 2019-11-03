@@ -29,9 +29,6 @@ EOF
 
 mkdir -p /etc/systemd/system/docker.service.d
 
-# add pi to docker group
-usermod -a -G docker pi
-
 # restart docker
 systemctl daemon-reload
 systemctl restart docker
