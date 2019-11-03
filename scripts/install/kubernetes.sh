@@ -10,9 +10,6 @@ dphys-swapfile uninstall
 update-rc.d dphys-swapfile remove
 systemctl disable dphys-swapfile.service
 
-# change default cgroups
-echo "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" >> /boot/cmdline.txt
-
 # add repo list
 curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 cat <<EOF>> /etc/apt/sources.list.d/kubernetes.list

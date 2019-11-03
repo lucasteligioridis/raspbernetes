@@ -64,6 +64,7 @@ install-conf: conf/ssh/id_ed25519 mount ## Copy all configurations and scripts t
 create-conf: $(RPI_NETWORK_TYPE) bootstrap-conf dhcp-conf ## Create custom configuration for specific node and IP
 	sudo sed -i "/^exit 0$$/i /home/pi/bootstrap/bootstrap.sh 2>&1 | logger -t kubernetes-bootstrap &" $(MNT_ROOT)/etc/rc.local
 	sudo sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication no/g" $(MNT_ROOT)/etc/ssh/sshd_config
+	sudo sed -i "s/^/cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory /" $(MNT_BOOT)/cmdline.txt
 
 .PHONY: bootstrap-conf
 bootstrap-conf: ## Add node custom configuration file to be sourced on boot
