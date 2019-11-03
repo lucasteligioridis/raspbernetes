@@ -4,9 +4,10 @@ SHELL := /bin/bash -o pipefail
 .DEFAULT_GOAL := help
 
 # Default variables
-MNT_ROOT = /mnt/raspbernetes/root
-MNT_BOOT = /mnt/raspbernetes/boot
-RPI_HOME = $(MNT_ROOT)/home/pi
+MNT_DEVICE ?= /dev/mmcblk0
+MNT_ROOT    = /mnt/raspbernetes/root
+MNT_BOOT    = /mnt/raspbernetes/boot
+RPI_HOME    = $(MNT_ROOT)/home/pi
 
 # Raspberry PI host and IP configuration
 RPI_NETWORK_TYPE ?= wlan0
@@ -86,31 +87,32 @@ dhcp-conf: ## Add dhcp configuration to set a static IP and gateway
 	echo "static domain_name_servers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 
 conf/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
+	mkdir -p ./conf/ssh/
 	ssh-keygen -t ed25519 -b 4096 -C "pi@raspberry" -f ./conf/ssh/id_ed25519 -q -N ""
 
 ##@ Download and SD Card management
 .PHONY: format
 format: $(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card for Linux machines with Raspbian
 	echo "Formatting SD card with $(RASPBIAN_IMAGE_VERSION).img"
-	sudo dd bs=4M if=./$(RASPBIAN_IMAGE_VERSION).img of=/dev/mmcblk0 status=progress conv=fsync
+	sudo dd bs=4M if=./$(RASPBIAN_IMAGE_VERSION).img of=$(MNT_DEVICE) status=progress conv=fsync
 
 .PHONY: mount
 mount: ## Mount the current SD slot drives
 	sudo mkdir -p $(MNT_BOOT)
 	sudo mkdir -p $(MNT_ROOT)
-	sudo mount /dev/mmcblk0p1 $(MNT_BOOT)
-	sudo mount /dev/mmcblk0p2 $(MNT_ROOT)
+	sudo mount $(MNT_DEVICE)p1 $(MNT_BOOT)
+	sudo mount $(MNT_DEVICE)p2 $(MNT_ROOT)
 
 .PHONY: unmount
 unmount: ## Unmount current SD slot drives
-	sudo umount /dev/mmcblk0p1 || true
-	sudo umount /dev/mmcblk0p2 || true
+	sudo umount $(MNT_DEVICE)p1 || true
+	sudo umount $(MNT_DEVICE)p2 || true
 
 .PHONY: wlan0
 wlan0: ## Install wpa_supplicant for auto network join
 	test -n "$(WIFI_SSID)"
 	test -n "$(WIFI_PASSWORD)"
-	sudo cp conf/wpa_supplicant.conf $(MNT_BOOT)/wpa_supplicant.conf
+	sudo cp ./conf/wpa_supplicant.conf $(MNT_BOOT)/wpa_supplicant.conf
 	sudo sed -i "s/<WIFI_SSID>/$(WIFI_SSID)/" $(MNT_BOOT)/wpa_supplicant.conf
 	sudo sed -i "s/<WIFI_PASSWORD>/$(WIFI_PASSWORD)/" $(MNT_BOOT)/wpa_supplicant.conf
 
@@ -138,7 +140,7 @@ help: ## Display this help
 ##@ Helpers
 .PHONY: clean
 clean: ## Unmount and delete all temporary mount directories
-	sudo umount /dev/mmcblk0p1 || true
-	sudo umount /dev/mmcblk0p2 || true
+	sudo umount $(MNT_DEVICE)p1 || true
+	sudo umount $(MNT_DEVICE)p2 || true
 	sudo rm -rf $(MNT_BOOT)
 	sudo rm -rf $(MNT_ROOT)
