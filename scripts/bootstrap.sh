@@ -16,6 +16,7 @@ sleep 30
 
 # install system dependencies in order
 ./install/utils.sh
+./install/iptables.sh
 ./install/docker.sh
 ./install/kubernetes.sh
 

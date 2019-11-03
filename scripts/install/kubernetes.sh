@@ -24,16 +24,6 @@ until apt-get update; do echo "Retrying to update apt mirrors"; done
 apt-get install -y --no-install-recommends "${kube_packages[@]}"
 apt-mark hold "${kube_packages[@]}"
 
-echo "Setting to use legacy iptables for compatibility issues"
-update-alternatives --set iptables /usr/sbin/iptables-legacy
-update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
-update-alternatives --set ebtables /usr/sbin/ebtables-legacy
-
-# add iptables rules and enable immediately
-echo "net.bridge.bridge-nf-call-iptables=1" >> /etc/sysctl.conf
-modprobe br_netfilter
-sysctl -p
-
 # pull down master images for faster build time in background
 if [ "${KUBE_NODE_TYPE}" == "master" ]; then
   echo "Pulling down all kubeadm images..."
