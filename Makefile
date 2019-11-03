@@ -56,7 +56,6 @@ install-conf: conf/ssh/id_ed25519 mount ## Copy all configurations and scripts t
 	mkdir -p $(RPI_HOME)/bootstrap/
 	cp -r ./scripts/* $(RPI_HOME)/bootstrap/
 	mkdir -p $(RPI_HOME)/.ssh
-	mkdir -p ./conf/ssh/
 	cp ./conf/ssh/id_ed25519 $(RPI_HOME)/.ssh/
 	cp ./conf/ssh/id_ed25519.pub $(RPI_HOME)/.ssh/authorized_keys
 	sudo rm -f $(MNT_ROOT)/etc/motd
