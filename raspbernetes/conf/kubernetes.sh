@@ -27,7 +27,7 @@ remote_control_plane() {
 }
 
 clean_node() {
-  if remote_control_plane kubectl get nodes | grep -q "${HOSTNAME}" | grep -q "NotReady"; then
+  if remote_control_plane kubectl get nodes | grep "${HOSTNAME}" | grep "NotReady"; then
     echo "Deleting ${HOSTNAME} node from kubernetes cluster"
     remote_control_plane kubectl delete node "${HOSTNAME}"
 
@@ -56,7 +56,7 @@ cluster_up() {
 
 reset_master() {
   echo "Removing master ${HOSTNAME} from existing etcd cluster"
-  etcdctl_member=$(etcdctl_cmd member list | grep -q "${HOSTNAME}" | cut -d ':' -f1)
+  etcdctl_member=$(etcdctl_cmd member list | grep "${HOSTNAME}" | cut -d ':' -f1)
   etcdctl_cmd member remove "${etcdctl_member}"
 
   echo "Updating the existing kubeadm config to clear out stale host"
@@ -100,7 +100,7 @@ join_master() {
   if curl -sSLk "https://${KUBE_MASTER_VIP}:6443" -o /dev/null; then
     echo "Control-plane has been found! Joining existing cluster as master."
     existing_master
-  elif hostname -I | grep -q "${KUBE_MASTER_VIP}"; then
+  elif hostname -I | grep "${KUBE_MASTER_VIP}"; then
     echo "VIP currently resides on local host and no cluster exists."
     echo "Initialising as new Kubernetes cluster"
     init_master
