@@ -54,7 +54,7 @@ build: format install-conf create-conf clean ## Build SD card with Kubernetes an
 install-conf: conf/ssh/id_ed25519 mount ## Copy all configurations and scripts to SD card
 	sudo touch $(MNT_BOOT)/ssh
 	mkdir -p $(RPI_HOME)/bootstrap/
-	cp -r ./scripts/* $(RPI_HOME)/bootstrap/
+	cp -r ./raspbernetes/* $(RPI_HOME)/bootstrap/
 	mkdir -p $(RPI_HOME)/.ssh
 	cp ./conf/ssh/id_ed25519 $(RPI_HOME)/.ssh/
 	cp ./conf/ssh/id_ed25519.pub $(RPI_HOME)/.ssh/authorized_keys
