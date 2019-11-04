@@ -61,7 +61,7 @@ install-conf: conf/ssh/id_ed25519 mount ## Copy all configurations and scripts t
 	sudo rm -f $(MNT_ROOT)/etc/motd
 
 .PHONY: create-conf
-create-conf: $(RPI_NETWORK_TYPE) bootstrap-conf dhcp-conf ## Create custom configuration for specific node and IP
+create-conf: $(RPI_NETWORK_TYPE) bootstrap-conf dhcp-conf ## Add default start up script, disable SSH password and enable cgroups on boot
 	sudo sed -i "/^exit 0$$/i /home/pi/bootstrap/bootstrap.sh 2>&1 | logger -t kubernetes-bootstrap &" $(MNT_ROOT)/etc/rc.local
 	sudo sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication no/g" $(MNT_ROOT)/etc/ssh/sshd_config
 	sudo sed -i "s/^/cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory /" $(MNT_BOOT)/cmdline.txt
@@ -92,19 +92,19 @@ conf/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
 
 ##@ Download and SD Card management
 .PHONY: format
-format: $(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card for Linux machines with Raspbian
+format: $(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card with Raspbian
 	echo "Formatting SD card with $(RASPBIAN_IMAGE_VERSION).img"
 	sudo dd bs=4M if=./$(RASPBIAN_IMAGE_VERSION).img of=$(MNT_DEVICE) status=progress conv=fsync
 
 .PHONY: mount
-mount: ## Mount the current SD slot drives
+mount: ## Mount the current SD device
 	sudo mkdir -p $(MNT_BOOT)
 	sudo mkdir -p $(MNT_ROOT)
 	sudo mount $(MNT_DEVICE)p1 $(MNT_BOOT)
 	sudo mount $(MNT_DEVICE)p2 $(MNT_ROOT)
 
 .PHONY: unmount
-unmount: ## Unmount current SD slot drives
+unmount: ## Unmount the current SD device
 	sudo umount $(MNT_DEVICE)p1 || true
 	sudo umount $(MNT_DEVICE)p2 || true
 
@@ -119,7 +119,7 @@ wlan0: ## Install wpa_supplicant for auto network join
 .PHONY: eth0
 eth0: ## Nothing to do for eth0
 
-$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspberry Pi image and extract to current directory
+$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspbian image and extract to current directory
 	echo "Downloading $(RASPBIAN_IMAGE_VERSION).img..."
 	wget $(RASPBIAN_URL)
 	unzip $(RASPBIAN_IMAGE_VERSION).zip
