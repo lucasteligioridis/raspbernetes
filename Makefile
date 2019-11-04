@@ -35,7 +35,7 @@ RASPBIAN_URL           = https://downloads.raspberrypi.org/raspbian_lite/images/
 ##@ Build
 .PHONY: build
 build: format install-conf create-conf clean ## Build SD card with Kubernetes and automated cluster creation
-	echo "Created an immutable Kubernetes SD card with the following properties:"
+	echo "Created a headless Kubernetes SD card with the following properties:"
 	echo "Network:"
 	echo "- Hostname: $(RPI_HOSTNAME)"
 	echo "- Static IP: $(RPI_IP)"
