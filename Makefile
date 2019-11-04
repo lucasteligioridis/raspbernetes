@@ -122,8 +122,8 @@ eth0: ## Nothing to do for eth0
 output/$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspbian image and extract to current directory
 	echo "Downloading $(RASPBIAN_IMAGE_VERSION).img..."
 	wget $(RASPBIAN_URL) -P ./output/
-	unzip ./output/$(RASPBIAN_IMAGE_VERSION).zip ./output/
-	rm -rf ./output/$(RASPBIAN_IMAGE_VERSION).zip
+	unzip ./output/$(RASPBIAN_IMAGE_VERSION).zip -d ./output/
+	rm -f ./output/$(RASPBIAN_IMAGE_VERSION).zip
 
 ##@ Misc
 .PHONY: help
