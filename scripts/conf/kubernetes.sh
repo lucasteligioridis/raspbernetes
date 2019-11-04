@@ -88,6 +88,7 @@ get_certs() {
 get_config() {
   mkdir -p "/root/.kube"
   mkdir -p "${pi_home}/.kube"
+  sed -i "s/6443/8443/" /etc/kubernetes/admin.conf
   cp -f /etc/kubernetes/admin.conf "/root/.kube/config"
   cp -f /etc/kubernetes/admin.conf "${pi_home}/.kube/config"
   chown -R "$(id -u):$(id -g)" "/root/.kube"
