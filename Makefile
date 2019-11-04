@@ -51,13 +51,13 @@ build: format install-conf create-conf clean ## Build SD card with Kubernetes an
 
 ##@ Configuration Generation
 .PHONY: install-conf
-install-conf: conf/ssh/id_ed25519 mount ## Copy all configurations and scripts to SD card
+install-conf: output/ssh/id_ed25519 mount ## Copy all configurations and scripts to SD card
 	sudo touch $(MNT_BOOT)/ssh
 	mkdir -p $(RPI_HOME)/bootstrap/
 	cp -r ./raspbernetes/* $(RPI_HOME)/bootstrap/
 	mkdir -p $(RPI_HOME)/.ssh
-	cp ./conf/ssh/id_ed25519 $(RPI_HOME)/.ssh/
-	cp ./conf/ssh/id_ed25519.pub $(RPI_HOME)/.ssh/authorized_keys
+	cp ./output/ssh/id_ed25519 $(RPI_HOME)/.ssh/
+	cp ./output/ssh/id_ed25519.pub $(RPI_HOME)/.ssh/authorized_keys
 	sudo rm -f $(MNT_ROOT)/etc/motd
 
 .PHONY: create-conf
@@ -86,15 +86,15 @@ dhcp-conf: ## Add dhcp configuration to set a static IP and gateway
 	echo "static routers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static domain_name_servers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 
-conf/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
-	mkdir -p ./conf/ssh/
-	ssh-keygen -t ed25519 -b 4096 -C "pi@raspberry" -f ./conf/ssh/id_ed25519 -q -N ""
+output/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
+	mkdir -p ./output/ssh/
+	ssh-keygen -t ed25519 -b 4096 -C "pi@raspberry" -f ./output/ssh/id_ed25519 -q -N ""
 
 ##@ Download and SD Card management
 .PHONY: format
-format: $(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card with Raspbian
+format: output/$(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card with Raspbian
 	echo "Formatting SD card with $(RASPBIAN_IMAGE_VERSION).img"
-	sudo dd bs=4M if=./$(RASPBIAN_IMAGE_VERSION).img of=$(MNT_DEVICE) status=progress conv=fsync
+	sudo dd bs=4M if=./output/$(RASPBIAN_IMAGE_VERSION).img of=$(MNT_DEVICE) status=progress conv=fsync
 
 .PHONY: mount
 mount: ## Mount the current SD device
@@ -119,11 +119,11 @@ wlan0: ## Install wpa_supplicant for auto network join
 .PHONY: eth0
 eth0: ## Nothing to do for eth0
 
-$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspbian image and extract to current directory
+output/$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspbian image and extract to current directory
 	echo "Downloading $(RASPBIAN_IMAGE_VERSION).img..."
-	wget $(RASPBIAN_URL)
-	unzip $(RASPBIAN_IMAGE_VERSION).zip
-	rm -rf $(RASPBIAN_IMAGE_VERSION).zip
+	wget $(RASPBIAN_URL) -P ./output/
+	unzip ./output/$(RASPBIAN_IMAGE_VERSION).zip ./output/
+	rm -rf ./output/$(RASPBIAN_IMAGE_VERSION).zip
 
 ##@ Misc
 .PHONY: help
