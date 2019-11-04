@@ -1,7 +1,7 @@
 # Raspbernetes
 
 Automated and repeatable method of deploying a headless Kubernetes stack
-onto a cluster of Raspberry PIs. Completely hands off experience from
+onto a cluster of Raspberry Pis. Completely hands off experience from
 power on.
 
 Detailed blog and guide posted onto my medium account:
@@ -16,7 +16,7 @@ used to build the SD cards:
 - `bash` - 4.0+
 - `make` - 4.1+
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - 1.16.1
-- 4 Raspberry PIs (3 Masters and 1 Worker)
+- 4 Raspberry Pis (3 Masters and 1 Worker)
 
 ## Applications
 
@@ -42,10 +42,10 @@ A short explanation of each environment variable that can be overridden.
 
 - `MNT_DEVICE` - Device name of SD slot on your local machine. (default: `/dev/mmcblk0`)
 
-#### Raspberry PI network and hostname configuration:
+#### Raspberry Pi network and hostname configuration:
 
 - `RPI_NETWORK_TYPE` - Network option of choice. Either `eth0` or `wlan0`. (default: `wlan0`)
-- `RPI_HOSTNAME` - Hostname for specific PI. (default: `rpi-kube-master-01`)
+- `RPI_HOSTNAME` - Hostname for specific Raspberry Pi. (default: `rpi-kube-master-01`)
 - `RPI_IP` - Static IP to set. (default: `192.168.1.101`)
 - `RPI_DNS` - DNS or Gateway. Generally your router ip. (default: `192.168.1.1`)
 - `RPI_TIMEZONE` - Local timezone. (default: `Australia/Melbourne`)
