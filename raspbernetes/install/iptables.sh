@@ -2,7 +2,6 @@
 set -euo pipefail
 
 echo "Installing ebtables and arptables..."
-apt-get update
 apt-get install -y ebtables arptables
 
 echo "Setting to use legacy tables for compatibility issues"
