@@ -5,7 +5,7 @@ onto a cluster of Raspberry Pis. Completely hands off experience from
 power on.
 
 Detailed blog and guide posted onto my medium account:
-- <post of medium link blog>
+- [Headless Kubernetes on 15 Raspberry Pis boot in under 8 minutes](https://medium.com/@lucas.teligioridis/headless-kubernetes-on-15-raspberry-pis-boot-in-under-8-minutes-808402ea2348)
 
 ## Prerequisites
 
