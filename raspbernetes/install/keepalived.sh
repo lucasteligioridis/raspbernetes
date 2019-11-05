@@ -17,7 +17,7 @@ else
 fi
 
 # generate configuration file
-cat <<EOF > /etc/keepalived/keepalived.conf
+cat << EOF > /etc/keepalived/keepalived.conf
 vrrp_instance VI_1 {
     interface ${RPI_NETWORK_TYPE}
     virtual_router_id 1

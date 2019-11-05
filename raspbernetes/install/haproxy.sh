@@ -8,7 +8,7 @@ apt-get install -y --no-install-recommends "haproxy=${haproxy_version}"
 apt-mark hold haproxy
 
 # create a configuration file for all other master hosts
-cat <<EOF >> /etc/haproxy/haproxy.cfg
+cat << EOF >> /etc/haproxy/haproxy.cfg
 
 frontend kube-api
   bind 0.0.0.0:8443

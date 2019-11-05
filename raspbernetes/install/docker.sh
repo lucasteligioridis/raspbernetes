@@ -5,7 +5,7 @@ docker_version="5:18.09.0~3-0~raspbian-stretch"
 
 # add repo list
 curl -fsSL https://download.docker.com/linux/raspbian/gpg | apt-key add -
-cat <<EOF>> /etc/apt/sources.list.d/docker.list
+cat << EOF >> /etc/apt/sources.list.d/docker.list
 deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
 EOF
 
@@ -16,7 +16,7 @@ apt-get install -y --no-install-recommends "docker-ce=${docker_version}"
 apt-mark hold docker-ce
 
 # setup daemon to user systemd as per kubernetes best practices
-cat <<EOF>> /etc/docker/daemon.json
+cat << EOF >> /etc/docker/daemon.json
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
