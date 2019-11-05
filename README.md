@@ -63,7 +63,15 @@ A short explanation of each environment variable that can be overridden.
 - `WIFI_SSID` - Local SSID to connect Wifi to. (default: `n/a`)
 - `WIFI_PASSWORD` - Password of above SSID to connect to Wifi using wpa_supplicant. (default: `n/a`)
 
-### Build
+### Run
+
+Be mindful of an SSH  key that gets generated with this build that is stored in
+the `output/ssh/` directory. This is not committed to git and should be treated
+safe like a normal private key. If you lose this key you will no longer be able
+to manage your stack. This is crucial for inter-cluster communication and
+remoting for management.
+
+#### Build
 
 Once appropriate above environment variables have been exported to suit your
 specific local environment, the below command will build an SD card with
@@ -73,7 +81,7 @@ all automation scripts:
 make build
 ```
 
-### Help
+#### Help
 
 The help target is set as the default target, so display the above brief
 descriptions. Use the below command as is to print to the terminal:
