@@ -8,6 +8,7 @@ MNT_DEVICE ?= /dev/mmcblk0
 MNT_ROOT    = /mnt/raspbernetes/root
 MNT_BOOT    = /mnt/raspbernetes/boot
 RPI_HOME    = $(MNT_ROOT)/home/pi
+OUTPUT_PATH = output
 
 # Raspberry PI host and IP configuration
 RPI_NETWORK_TYPE ?= wlan0
@@ -34,7 +35,7 @@ RASPBIAN_URL           = https://downloads.raspberrypi.org/raspbian_lite/images/
 
 ##@ Build
 .PHONY: build
-build: format install-conf create-conf clean ## Build SD card with Kubernetes and automated cluster creation
+build: prepare format install-conf create-conf clean ## Build SD card with Kubernetes and automated cluster creation
 	echo "Created a headless Kubernetes SD card with the following properties:"
 	echo "Network:"
 	echo "- Hostname: $(RPI_HOSTNAME)"
@@ -51,13 +52,13 @@ build: format install-conf create-conf clean ## Build SD card with Kubernetes an
 
 ##@ Configuration Generation
 .PHONY: install-conf
-install-conf: output/ssh/id_ed25519 mount ## Copy all configurations and scripts to SD card
+install-conf: $(OUTPUT_PATH)/ssh/id_ed25519 mount ## Copy all configurations and scripts to SD card
 	sudo touch $(MNT_BOOT)/ssh
 	mkdir -p $(RPI_HOME)/bootstrap/
 	cp -r ./raspbernetes/* $(RPI_HOME)/bootstrap/
 	mkdir -p $(RPI_HOME)/.ssh
-	cp ./output/ssh/id_ed25519 $(RPI_HOME)/.ssh/
-	cp ./output/ssh/id_ed25519.pub $(RPI_HOME)/.ssh/authorized_keys
+	cp ./$(OUTPUT_PATH)/ssh/id_ed25519 $(RPI_HOME)/.ssh/
+	cp ./$(OUTPUT_PATH)/ssh/id_ed25519.pub $(RPI_HOME)/.ssh/authorized_keys
 	sudo rm -f $(MNT_ROOT)/etc/motd
 
 .PHONY: create-conf
@@ -86,20 +87,17 @@ dhcp-conf: ## Add dhcp configuration to set a static IP and gateway
 	echo "static routers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static domain_name_servers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 
-output/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
-	mkdir -p ./output/ssh/
-	ssh-keygen -t ed25519 -b 4096 -C "pi@raspberry" -f ./output/ssh/id_ed25519 -q -N ""
+$(OUTPUT_PATH)/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
+	ssh-keygen -t ed25519 -b 4096 -C "pi@raspberry" -f ./$(OUTPUT_PATH)/ssh/id_ed25519 -q -N ""
 
 ##@ Download and SD Card management
 .PHONY: format
-format: output/$(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card with Raspbian
+format: $(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD card with Raspbian
 	echo "Formatting SD card with $(RASPBIAN_IMAGE_VERSION).img"
-	sudo dd bs=4M if=./output/$(RASPBIAN_IMAGE_VERSION).img of=$(MNT_DEVICE) status=progress conv=fsync
+	sudo dd bs=4M if=./$(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).img of=$(MNT_DEVICE) status=progress conv=fsync
 
 .PHONY: mount
 mount: ## Mount the current SD device
-	sudo mkdir -p $(MNT_BOOT)
-	sudo mkdir -p $(MNT_ROOT)
 	sudo mount $(MNT_DEVICE)p1 $(MNT_BOOT)
 	sudo mount $(MNT_DEVICE)p2 $(MNT_ROOT)
 
@@ -119,11 +117,11 @@ wlan0: ## Install wpa_supplicant for auto network join
 .PHONY: eth0
 eth0: ## Nothing to do for eth0
 
-output/$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspbian image and extract to current directory
+$(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).img: ## Download Raspbian image and extract to current directory
 	echo "Downloading $(RASPBIAN_IMAGE_VERSION).img..."
-	wget $(RASPBIAN_URL) -P ./output/
-	unzip ./output/$(RASPBIAN_IMAGE_VERSION).zip -d ./output/
-	rm -f ./output/$(RASPBIAN_IMAGE_VERSION).zip
+	wget $(RASPBIAN_URL) -P ./$(OUTPUT_PATH)/
+	unzip ./$(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).zip -d ./$(OUTPUT_PATH)/
+	rm -f ./$(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).zip
 
 ##@ Misc
 .PHONY: help
@@ -138,6 +136,12 @@ help: ## Display this help
 	  }' $(MAKEFILE_LIST)
 
 ##@ Helpers
+.PHONY: prepare
+prepare: ## Create all necessary directories to be used in build
+	sudo mkdir -p $(MNT_BOOT)
+	sudo mkdir -p $(MNT_ROOT)
+	mkdir -p ./$(OUTPUT_PATH)/ssh/
+
 .PHONY: clean
 clean: ## Unmount and delete all temporary mount directories
 	sudo umount $(MNT_DEVICE)p1 || true
