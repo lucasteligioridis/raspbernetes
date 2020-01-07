@@ -98,13 +98,24 @@ format: $(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD ca
 
 .PHONY: mount
 mount: ## Mount the current SD device
-	sudo mount $(MNT_DEVICE)p1 $(MNT_BOOT)
-	sudo mount $(MNT_DEVICE)p2 $(MNT_ROOT)
+	ifeq (,$(findstring sda,$(MNT_DEVICE)))
+		sudo mount $(MNT_DEVICE)1 $(MNT_BOOT)
+		sudo mount $(MNT_DEVICE)2 $(MNT_ROOT)
+	else
+		sudo mount $(MNT_DEVICE)p1 $(MNT_BOOT)
+		sudo mount $(MNT_DEVICE)p2 $(MNT_ROOT)
+	endif
 
 .PHONY: unmount
 unmount: ## Unmount the current SD device
-	sudo umount $(MNT_DEVICE)p1 || true
-	sudo umount $(MNT_DEVICE)p2 || true
+	ifeq (,$(findstring sda,$(MNT_DEVICE)))
+		sudo umount $(MNT_DEVICE)1 || true
+		sudo umount $(MNT_DEVICE)2 || true
+	else
+	
+		sudo umount $(MNT_DEVICE)p1 || true
+		sudo umount $(MNT_DEVICE)p2 || true
+	endif
 
 .PHONY: wlan0
 wlan0: ## Install wpa_supplicant for auto network join
@@ -144,7 +155,13 @@ prepare: ## Create all necessary directories to be used in build
 
 .PHONY: clean
 clean: ## Unmount and delete all temporary mount directories
-	sudo umount $(MNT_DEVICE)p1 || true
-	sudo umount $(MNT_DEVICE)p2 || true
+	ifeq (,$(findstring sda,$(MNT_DEVICE)))
+		sudo umount $(MNT_DEVICE)1 || true
+		sudo umount $(MNT_DEVICE)2 || true
+	else
+	
+		sudo umount $(MNT_DEVICE)p1 || true
+		sudo umount $(MNT_DEVICE)p2 || true
+	endif
 	sudo rm -rf $(MNT_BOOT)
 	sudo rm -rf $(MNT_ROOT)
