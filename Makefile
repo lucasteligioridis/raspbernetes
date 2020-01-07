@@ -98,7 +98,7 @@ format: $(OUTPUT_PATH)/$(RASPBIAN_IMAGE_VERSION).img unmount ## Format the SD ca
 
 .PHONY: mount
 mount: ## Mount the current SD device
-	ifneq (,$(findstring mmcblk,$(MNT_DEVICE)))
+	ifneq ($(findstring mmcblk,$(MNT_DEVICE)),mmcblk)
 		sudo mount $(MNT_DEVICE)1 $(MNT_BOOT)
 		sudo mount $(MNT_DEVICE)2 $(MNT_ROOT)
 	else
@@ -108,7 +108,7 @@ mount: ## Mount the current SD device
 
 .PHONY: unmount
 unmount: ## Unmount the current SD device
-	ifneq (,$(findstring mmcblk,$(MNT_DEVICE)))
+	ifneq ($(findstring mmcblk,$(MNT_DEVICE)),mmcblk)
 		sudo umount $(MNT_DEVICE)1 || true
 		sudo umount $(MNT_DEVICE)2 || true
 	else
@@ -155,7 +155,7 @@ prepare: ## Create all necessary directories to be used in build
 
 .PHONY: clean
 clean: ## Unmount and delete all temporary mount directories
-	ifneq (,$(findstring mmcblk,$(MNT_DEVICE)))
+	ifneq ($(findstring mmcblk,$(MNT_DEVICE)),mmcblk)
 		sudo umount $(MNT_DEVICE)1 || true
 		sudo umount $(MNT_DEVICE)2 || true
 	else
