@@ -47,7 +47,8 @@ A short explanation of each environment variable that can be overridden.
 - `RPI_NETWORK_TYPE` - Network option of choice. Either `eth0` or `wlan0`. (default: `wlan0`)
 - `RPI_HOSTNAME` - Hostname for specific Raspberry Pi. (default: `rpi-kube-master-01`)
 - `RPI_IP` - Static IP to set. (default: `192.168.1.101`)
-- `RPI_DNS` - DNS or Gateway. Generally your router ip. (default: `192.168.1.1`)
+- `RPI_GATEWAY` - Generally your router ip. (default: `192.168.1.1`)
+- `RPI_DNS` - Usually the same as your router unless you run a separate DNS (default: `192.168.1.1`)
 - `RPI_TIMEZONE` - Local timezone. (default: `Australia/Melbourne`)
 
 #### Kubernetes specific configuration:

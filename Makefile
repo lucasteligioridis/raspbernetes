@@ -14,6 +14,7 @@ OUTPUT_PATH = output
 RPI_NETWORK_TYPE ?= wlan0
 RPI_HOSTNAME     ?= rpi-kube-master-01
 RPI_IP           ?= 192.168.1.101
+RPI_GATEWAY      ?= 192.168.1.1
 RPI_DNS          ?= 192.168.1.1
 RPI_TIMEZONE     ?= Australia/Melbourne
 
@@ -84,7 +85,7 @@ bootstrap-conf: ## Add node custom configuration file to be sourced on boot
 dhcp-conf: ## Add dhcp configuration to set a static IP and gateway
 	echo "interface $(RPI_NETWORK_TYPE)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static ip_address=$(RPI_IP)/24" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
-	echo "static routers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
+	echo "static routers=$(RPI_GATEWAY)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 	echo "static domain_name_servers=$(RPI_DNS)" | sudo tee -a $(MNT_ROOT)/etc/dhcpcd.conf >/dev/null
 
 $(OUTPUT_PATH)/ssh/id_ed25519: ## Generate SSH keypair to use in cluster communication
