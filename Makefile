@@ -70,6 +70,7 @@ create-conf: $(RPI_NETWORK_TYPE) bootstrap-conf dhcp-conf ## Add default start u
 
 .PHONY: bootstrap-conf
 bootstrap-conf: ## Add node custom configuration file to be sourced on boot
+	echo "export DOCKER_API_VERSION=1.39" >> $(RPI_HOME)/bootstrap/rpi-env
 	echo "export RPI_HOSTNAME=$(RPI_HOSTNAME)" >> $(RPI_HOME)/bootstrap/rpi-env
 	echo "export RPI_IP=$(RPI_IP)" >> $(RPI_HOME)/bootstrap/rpi-env
 	echo "export RPI_DNS=$(RPI_DNS)" >> $(RPI_HOME)/bootstrap/rpi-env
