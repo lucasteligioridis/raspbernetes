@@ -27,7 +27,7 @@ See below for a list of the versions and applications used:
 
 - [Raspbian](https://downloads.raspberrypi.org/raspbian_lite/images/) - raspbian_lite-2019-09-30
 - [Kubernetes](https://kubernetes.io/) - 1.16.1
-- [Docker](https://www.docker.com/) - 18.09.0
+- [Docker](https://www.docker.com/) - 19.03.9
 - [HA Proxy](http://www.haproxy.org/) - 1.8.19
 - [Keepalived](https://www.keepalived.org/) - 2.0.10
 - [Flannel](https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml) - As per instructions on kubeadm installation page
