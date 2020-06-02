@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-docker_version="5:18.09.0~3-0~raspbian-stretch"
+docker_version="5:19.03.9~3-0~raspbian-stretch"
 
 # add repo list
 curl -fsSL https://download.docker.com/linux/raspbian/gpg | apt-key add -
