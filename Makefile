@@ -30,8 +30,8 @@ WIFI_SSID     ?=
 WIFI_PASSWORD ?=
 
 # Raspbian image configuration
-RASPBIAN_VERSION       = raspbian_lite-2019-09-30
-RASPBIAN_IMAGE_VERSION = 2019-09-26-raspbian-buster-lite
+RASPBIAN_VERSION       = raspbian_lite-2020-02-14
+RASPBIAN_IMAGE_VERSION = 2020-02-13-raspbian-buster-lite
 RASPBIAN_URL           = https://downloads.raspberrypi.org/raspbian_lite/images/$(RASPBIAN_VERSION)/$(RASPBIAN_IMAGE_VERSION).zip
 
 ##@ Build

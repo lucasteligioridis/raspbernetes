@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-kube_version="1.16.1-00"
+kube_version="1.20.4-00"
 kube_packages=("kubelet=${kube_version}" "kubectl=${kube_version}" "kubeadm=${kube_version}")
 
 echo "Disabling swap and ensuring it doesn't turn back on after reboot"
