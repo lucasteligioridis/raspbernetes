@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-flannel_version="2140ac876ef134e0ed5af15c65e414cf26827915"
-flannel_url="https://raw.githubusercontent.com/coreos/flannel/${flannel_version}/Documentation/kube-flannel.yml"
+flannel_version="v0.13.0"
+flannel_url="https://raw.githubusercontent.com/flannel-io/flannel/${flannel_version}/Documentation/kube-flannel.yml"
 pi_home="/home/pi"
 kube_finished="${pi_home}/kube-finished-booting"
 
@@ -118,7 +118,8 @@ init_master() {
     --pod-network-cidr "10.244.0.0/16" \
     --control-plane-endpoint "${KUBE_MASTER_VIP}:6443" \
     --skip-token-print \
-    --skip-certificate-key-print
+    --skip-certificate-key-print \
+    --ignore-preflight-errors=Mem
 
   # setup flannel
   kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f "${flannel_url}"

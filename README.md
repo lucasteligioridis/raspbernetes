@@ -15,7 +15,7 @@ used to build the SD cards:
 - Linux - Because of filesystem requirements
 - `bash` - 4.0+
 - `make` - 4.1+
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - 1.16.1
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - 1.20.4
 - 4 Raspberry Pis (3 Masters and 1 Worker)
 
 ## Applications
@@ -25,12 +25,12 @@ using `haproxy` and `keepalived` for cluster management.
 
 See below for a list of the versions and applications used:
 
-- [Raspbian](https://downloads.raspberrypi.org/raspbian_lite/images/) - raspbian_lite-2019-09-30
-- [Kubernetes](https://kubernetes.io/) - 1.16.1
+- [Raspbian](https://downloads.raspberrypi.org/raspbian_lite/images/) - raspbian_lite-2020-02-14
+- [Kubernetes](https://kubernetes.io/) - 1.20.4
 - [Docker](https://www.docker.com/) - 19.03.9
 - [HA Proxy](http://www.haproxy.org/) - 1.8.19
 - [Keepalived](https://www.keepalived.org/) - 2.0.10
-- [Flannel](https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml) - As per instructions on kubeadm installation page
+- [Flannel](https://raw.githubusercontent.com/flannel-io/flannel/v0.13.0/Documentation/kube-flannel.yml) - As per instructions on kubeadm installation page
 
 ## Configuration
 

@@ -16,9 +16,9 @@ frontend kube-api
   mode tcp
   option tcplog
   timeout client 4h
-  default_backend kube-api
+  default_backend kube-api-be
 
-backend kube-api
+backend kube-api-be
   mode tcp
   option tcp-check
   timeout server 4h
